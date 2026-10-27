@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eleições 2026 — abstenção e voto por local de votação</title>
+<meta name="description" content="Dados abertos do 1.º e do 2.º turno da eleição presidencial de 2026, local de votação por local de votação: abstenção, transferência de urnas e variação do voto.">
+<meta property="og:title" content="Eleições 2026 — abstenção e voto por local de votação">
+<meta property="og:description" content="Mapa interativo e planilhas auditáveis do 1.º e do 2.º turno, a partir dos dados abertos do TSE.">
+<meta property="og:image" content="analise_os_dados.png">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=Source+Serif+4:opsz,wght@8..60,400..600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --papel:#ffffff;
+    --tinta:#16212e;
+    --suave:#55616f;
+    --linha:#dde2e8;
+    --campo:#f2f4f6;
+    --subiu:#b3245c;   /* mesma cor do mapa: abstenção em alta */
+    --caiu:#3f8f45;    /* mesma cor do mapa: abstenção em queda */
+    --lula:#b5302a;    /* mesma cor do mapa: avanço de Lula */
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--papel); color:var(--tinta);
+    font-family:"Source Serif 4",Georgia,serif; font-size:1.0625rem; line-height:1.7;
+    font-optical-sizing:auto;
+  }
+  .env{max-width:72rem; margin-inline:auto; padding-inline:clamp(1rem,4vw,3.5rem)}
+  h1,h2,h3,nav,.ui{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+  a{color:inherit}
+  a:focus-visible,button:focus-visible{outline:3px solid var(--subiu); outline-offset:3px; border-radius:2px}
+
+  /* topo */
+  .topo{border-bottom:1px solid var(--linha)}
+  .topo .env{display:flex; flex-wrap:wrap; gap:.5rem 1.5rem; align-items:baseline; padding-block:1.1rem}
+  .topo b{font-family:Archivo,sans-serif; font-weight:600; font-size:.95rem; font-variation-settings:"wdth" 100}
+  .topo span{color:var(--suave); font-size:.95rem}
+  .topo a{margin-left:auto; font-family:Archivo,sans-serif; font-size:.95rem; color:var(--suave)}
+
+  /* abertura */
+  .abertura{padding-block:clamp(3rem,8vw,6rem) clamp(2rem,5vw,3.5rem)}
+  h1{
+    font-weight:700; font-variation-settings:"wdth" 115;
+    font-size:clamp(2.9rem,9.2vw,7rem); line-height:.92; letter-spacing:-.025em;
+    margin:0; text-wrap:balance;
+  }
+  h1 em{font-style:normal; display:block; color:var(--suave)}
+  .deck{
+    font-size:clamp(1.1rem,1.9vw,1.45rem); line-height:1.5; max-width:34ch;
+    margin:1.75rem 0 0; color:var(--tinta);
+  }
+  .acoes{display:flex; flex-wrap:wrap; gap:.75rem; margin-top:2.25rem}
+  .btn{
+    font-family:Archivo,sans-serif; font-weight:600; font-size:1rem; text-decoration:none;
+    padding:.85rem 1.5rem; border:1.5px solid var(--tinta); display:inline-block;
+  }
+  .btn-cheio{background:var(--tinta); color:#fff}
+  .btn-vazio{background:transparent; color:var(--tinta)}
+  .btn:hover{background:var(--subiu); border-color:var(--subiu); color:#fff}
+  .aviso{font-size:.95rem; color:var(--suave); margin:1rem 0 0; max-width:48ch}
+
+  /* figura */
+  figure{margin:0; padding-bottom:clamp(3rem,7vw,5rem)}
+  figure img{width:100%; height:auto; display:block; border:1px solid var(--linha)}
+  figcaption{font-size:.9rem; color:var(--suave); margin-top:.75rem; max-width:62ch}
+
+  /* números */
+  .placar{background:var(--campo); border-block:1px solid var(--linha)}
+  .placar .env{display:grid; gap:2rem clamp(1.5rem,4vw,3rem); padding-block:clamp(2.5rem,5vw,3.5rem);
+               grid-template-columns:repeat(auto-fit,minmax(min(13rem,100%),1fr))}
+  .num{font-family:Archivo,sans-serif; font-weight:700; font-variation-settings:"wdth" 92;
+       font-size:clamp(2rem,4.2vw,2.9rem); line-height:1; letter-spacing:-.02em; display:block}
+  .num small{font-size:.45em; font-weight:600; letter-spacing:0; margin-left:.3em; color:var(--suave)}
+  .rot{display:block; margin-top:.6rem; font-size:.95rem; color:var(--suave); max-width:26ch}
+  .t-caiu{color:var(--caiu)} .t-subiu{color:var(--subiu)}
+
+  /* seções */
+  section{padding-block:clamp(3rem,7vw,5rem)}
+  h2{font-weight:700; font-variation-settings:"wdth" 108; font-size:clamp(1.55rem,3.1vw,2.3rem);
+     line-height:1.1; letter-spacing:-.015em; margin:0 0 .6rem; max-width:24ch}
+  .intro{color:var(--suave); max-width:62ch; margin:0 0 2.5rem}
+  .achados{display:grid; gap:2.5rem clamp(2rem,5vw,4rem); grid-template-columns:repeat(auto-fit,minmax(min(24rem,100%),1fr))}
+  .achado{border-top:3px solid var(--linha); padding-top:1.1rem}
+  .achado.a-subiu{border-top-color:var(--subiu)}
+  .achado.a-caiu{border-top-color:var(--caiu)}
+  .achado.a-lula{border-top-color:var(--lula)}
+  .achado h3{font-weight:600; font-variation-settings:"wdth" 100; font-size:1.15rem; margin:0 0 .5rem; line-height:1.3}
+  .achado p{margin:0; color:var(--suave)}
+
+  /* tabela de arquivos */
+  .rolagem{overflow-x:auto}
+  table{border-collapse:collapse; width:100%; min-width:38rem; font-size:.98rem}
+  th,td{text-align:left; padding:.9rem 1rem .9rem 0; border-bottom:1px solid var(--linha); vertical-align:top}
+  thead th{font-family:Archivo,sans-serif; font-weight:600; font-size:.9rem; color:var(--suave);
+           border-bottom-width:1.5px; border-bottom-color:var(--tinta)}
+  td:first-child{font-family:Archivo,sans-serif; font-weight:500; font-size:.92rem; white-space:nowrap; padding-right:2rem}
+  td a{text-decoration-color:var(--subiu); text-underline-offset:3px}
+
+  /* método */
+  .metodo{display:grid; gap:2rem clamp(2rem,5vw,4rem); grid-template-columns:repeat(auto-fit,minmax(min(20rem,100%),1fr))}
+  .metodo h3{font-weight:600; font-size:1.1rem; margin:0 0 .5rem; font-variation-settings:"wdth" 100}
+  .metodo p{margin:0 0 1rem; color:var(--suave); max-width:60ch}
+  .metodo p:last-child{margin-bottom:0}
+
+  /* rodapé */
+  footer{background:var(--tinta); color:#eef1f5}
+  footer .env{padding-block:clamp(3rem,7vw,5rem)}
+  .recado{font-family:Archivo,sans-serif; font-weight:700; font-variation-settings:"wdth" 108;
+          font-size:clamp(1.5rem,3.4vw,2.4rem); line-height:1.15; letter-spacing:-.015em;
+          margin:0 0 1.5rem; max-width:22ch; color:#fff}
+  footer p{max-width:60ch; color:#bcc6d2}
+  footer a{color:#fff; text-decoration-color:var(--subiu); text-underline-offset:3px}
+  .fontes{font-family:Archivo,sans-serif; font-size:.88rem; color:#8c99a8; margin-top:2.5rem;
+          border-top:1px solid #2c3a4a; padding-top:1.5rem; max-width:none}
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <div class="env">
+    <b>Eleições 2026</b>
+    <span>Presidente, 1.º e 2.º turno, por local de votação</span>
+    <a href="https://github.com/tatipara/eleicao_2026_2turno">Repositório no GitHub</a>
+  </div>
+</header>
+
+<main>
+  <div class="env abertura">
+    <h1>Analise<br>os dados<em>da eleição</em></h1>
+    <p class="deck">Onde a abstenção mudou, quais urnas mudaram de endereço e onde o voto virou, entre o 1.º e o 2.º turno de 2026.</p>
+    <div class="acoes">
+      <a class="btn btn-cheio" href="mapa_T1xT2_BR.html">Abrir o mapa</a>
+      <a class="btn btn-vazio" href="#arquivos">Baixar as planilhas</a>
+    </div>
+    <p class="aviso">O mapa reúne os 94 mil locais de votação do país em uma página só. Ele demora para abrir e pede um computador; no celular, prefira as planilhas.</p>
+  </div>
+
+  <div class="env">
+    <figure>
+      <img src="analise_os_dados.png" alt="Quatro mapas do Brasil com um ponto por local de votação: variação da abstenção, urnas transferidas de endereço, locais onde a liderança mudou e variação do voto em Lula entre os turnos.">
+      <figcaption>Os quatro recortes da análise. Cada ponto é um local de votação, posicionado pelas coordenadas que o próprio TSE publica.</figcaption>
+    </figure>
+  </div>
+
+  <div class="placar">
+    <div class="env">
+      <div>
+        <span class="num t-caiu">19,22<small>%</small></span>
+        <span class="rot">de abstenção no 2.º turno, contra 21,08% no 1.º: a menor taxa desde 2006</span>
+      </div>
+      <div>
+        <span class="num">158.745.502</span>
+        <span class="rot">eleitores aptos, o mesmo cadastro nos dois turnos</span>
+      </div>
+      <div>
+        <span class="num t-subiu">4.352</span>
+        <span class="rot">seções mudaram de local de votação entre um turno e outro</span>
+      </div>
+      <div>
+        <span class="num">94.268</span>
+        <span class="rot">locais de votação, com endereço e coordenadas em cada planilha</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="env">
+    <h2>O que os mapas mostram</h2>
+    <p class="intro">São leituras descritivas. Os padrões abaixo servem para formular hipóteses e orientar a próxima pergunta, não para provar causas.</p>
+    <div class="achados">
+      <div class="achado a-subiu">
+        <h3>A queda da abstenção não foi do país inteiro</h3>
+        <p>No Norte — Roraima, Amapá, Acre, a calha do rio Amazonas, o norte do Pará e do Maranhão — muitos locais tiveram alta de até 8 pontos percentuais, enquanto o litoral do Nordeste, o Sudeste e o Sul puxavam a média para baixo.</p>
+      </div>
+      <div class="achado a-subiu">
+        <h3>Urna que mudou de endereço votou menos</h3>
+        <p>Comparando cada urna transferida com as urnas que ficaram no mesmo lugar, dentro do mesmo município, a abstenção subiu mais onde o local mudou. O TSE transferiu seções por obras, acessibilidade e danos de chuva, então isso é associação, não causa.</p>
+      </div>
+      <div class="achado a-lula">
+        <h3>As viradas se concentraram no Sudeste</h3>
+        <p>Os locais em que a liderança passou de Flávio Bolsonaro para Lula estão sobretudo em Minas Gerais, São Paulo, Rio de Janeiro, no Sul e no Centro-Oeste — as regiões que decidiram o 51,79% contra 48,21%.</p>
+      </div>
+      <div class="achado a-caiu">
+        <h3>Onde já era muito alto, quase não cresceu</h3>
+        <p>No interior do Nordeste, onde Lula tinha votações muito altas no 1.º turno, há mais recuos do que avanços — o comportamento esperado quando uma votação se aproxima do teto.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="env" id="arquivos">
+    <h2>As planilhas</h2>
+    <p class="intro">Tudo em CSV, codificação UTF-8 com BOM e separador vírgula, prontas para abrir no Excel, no R ou no pandas. Os arquivos grandes demais para o GitHub estão na aba <a href="https://github.com/tatipara/eleicao_2026_2turno/releases">Releases</a> do repositório.</p>
+    <div class="rolagem">
+      <table>
+        <thead>
+          <tr><th>Arquivo</th><th>Uma linha para cada</th><th>Principais colunas</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="presidente_T1xT2_por_urna.csv">presidente_T1xT2_por_urna.csv</a></td>
+            <td>urna, com o local dos dois turnos lado a lado</td>
+            <td>endereço e coordenadas no 1.º e no 2.º turno, distância entre eles, aptos, comparecimento, abstenção e votos de cada candidato</td>
+          </tr>
+          <tr>
+            <td><a href="presidente_T1xT2_por_local.csv">presidente_T1xT2_por_local.csv</a></td>
+            <td>local de votação</td>
+            <td>as mesmas medidas, somadas por escola, ginásio ou posto</td>
+          </tr>
+          <tr>
+            <td><a href="presidente_T1xT2_por_municipio.csv">presidente_T1xT2_por_municipio.csv</a></td>
+            <td>município, com o código do IBGE</td>
+            <td>variação da abstenção e do voto, pronta para cruzar com o Censo</td>
+          </tr>
+          <tr>
+            <td><a href="presidente_T1xT2_por_uf.csv">presidente_T1xT2_por_uf.csv</a></td>
+            <td>unidade da federação</td>
+            <td>o resumo que cabe em uma tela</td>
+          </tr>
+          <tr>
+            <td><a href="auditoria_T1xT2.csv">auditoria_T1xT2.csv</a></td>
+            <td>turno</td>
+            <td>os totais calculados ao lado dos totais oficiais do TSE</td>
+          </tr>
+          <tr>
+            <td><a href="Eleicao2026_locais_abstencao_IBGE_v2.ipynb">Eleicao2026_locais_abstencao_IBGE_v2.ipynb</a></td>
+            <td>—</td>
+            <td>o caderno que baixa, confere e monta tudo isso, para rodar no Colab ou na sua IDE</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="env">
+    <h2>Como os números foram apurados</h2>
+    <div class="metodo">
+      <div>
+        <h3>De onde vêm os dados</h3>
+        <p>Do Portal de Dados Abertos do TSE: a votação por seção eleitoral e o cadastro de eleitores por local de votação, que traz os aptos, o endereço e as coordenadas de cada seção em cada turno. A população dos municípios vem do Censo 2022 do IBGE.</p>
+        <h3>O que é abstenção aqui</h3>
+        <p>Eleitores aptos menos comparecimento, com o comparecimento medido pelo total de votos para presidente, incluindo brancos e nulos. É a mesma definição que o TSE usa, e o cadastro eleitoral é o denominador — população não é eleitorado.</p>
+      </div>
+      <div>
+        <h3>Por que a comparação é feita por urna</h3>
+        <p>A urna leva o mesmo grupo de eleitores nos dois turnos. O local de votação, não: quando uma seção é transferida, o local passa a receber outras pessoas. Comparar urna com urna separa a mudança de comportamento da mudança de composição.</p>
+        <h3>O que esses números não dizem</h3>
+        <p>São dados agregados por urna, nunca por eleitor. Se o voto em um candidato cresceu num local, isso pode vir de quem mudou de voto, de quem antes se absteve ou de quem votou em outro candidato no 1.º turno — atribuir o crescimento a um desses grupos seria falácia ecológica.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="env">
+    <p class="recado">Que os dados sejam nossos primeiros passos para promover a democracia no dia a dia.</p>
+    <p>Use, estude, analise. O voto diz muito sobre economia, políticas públicas, perfil social e estratégia — e tudo o que está aqui pode ser refeito, conferido e contestado por qualquer pessoa. Se encontrar um erro, <a href="https://github.com/tatipara/eleicao_2026_2turno/issues">abra uma issue no repositório</a>.</p>
+    <p class="fontes">Fontes: TSE, Portal de Dados Abertos — votação por seção eleitoral e eleitorado por local de votação, 2026; IBGE, Censo 2022. Mapas e tabelas de elaboração própria, em Python, com pandas e Plotly. Código sob licença MIT.</p>
+  </div>
+</footer>
+
+</body>
+</html>
